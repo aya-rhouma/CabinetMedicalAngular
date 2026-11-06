@@ -1,0 +1,868 @@
+{
+  "info": {
+    "name": "Cabinet Médical API",
+    "description": "1) Lancer '0 - Authentification' > Login ADMIN (le jeton est enregistré). 2) Dossiers 1 à 5 = anciennes routes CRUD, réservées à l'ADMIN. 3) Pour tester un espace, se connecter avec le rôle voulu (le jeton est remplacé), puis lancer le dossier 7, 8 ou 9. Les ids supposent une base vide.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8081/api"
+    },
+    {
+      "key": "token",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "0 - Authentification",
+      "item": [
+        {
+          "name": "Login ADMIN (stocke le jeton)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@cabinet.tn\",\n  \"motDePasse\": \"Admin123!\"\n}"
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('login ok', () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set('token', pm.response.json().token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Inscription PATIENT (stocke le jeton)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/auth/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Trabelsi\",\n  \"prenom\": \"Sana\",\n  \"adresse\": \"Ariana\",\n  \"email\": \"sana@mail.com\",\n  \"motDePasse\": \"secret123\"\n}"
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('login ok', () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set('token', pm.response.json().token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login PATIENT (stocke le jeton)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"sana@mail.com\",\n  \"motDePasse\": \"secret123\"\n}"
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('login ok', () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set('token', pm.response.json().token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login MEDECIN (stocke le jeton)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"karim@cabinet.tn\",\n  \"motDePasse\": \"medecin123\"\n}"
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('login ok', () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set('token', pm.response.json().token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Changer le mot de passe (tout utilisateur connecté)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/auth/change-password",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ancienMotDePasse\": \"secret123\",\n  \"nouveauMotDePasse\": \"secret456\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login avec mauvais mot de passe (401)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@cabinet.tn\",\n  \"motDePasse\": \"faux\"\n}"
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET mon profil (tout utilisateur connecté)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/auth/profile"
+          }
+        },
+        {
+          "name": "PUT modifier mon profil (renvoie un nouveau jeton)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/auth/profile",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Trabelsi\",\n  \"prenom\": \"Sana\",\n  \"adresse\": \"La Marsa\",\n  \"email\": \"sana@mail.com\",\n  \"idspec\": null\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "1 - Spécialités",
+      "item": [
+        {
+          "name": "POST créer spécialité",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/specialites",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nomspecialite\": \"Cardiologie\"\n}"
+            }
+          }
+        },
+        {
+          "name": "GET toutes",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/specialites"
+          }
+        },
+        {
+          "name": "GET par id",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/specialites/1"
+          }
+        },
+        {
+          "name": "PUT modifier",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/specialites/1",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nomspecialite\": \"Cardiologie générale\"\n}"
+            }
+          }
+        },
+        {
+          "name": "DELETE supprimer (à lancer en dernier)",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/specialites/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "2 - Médecins",
+      "item": [
+        {
+          "name": "POST créer médecin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/medecins",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Ben Ali\",\n  \"prenom\": \"Karim\",\n  \"adr\": \"Tunis\",\n  \"email\": \"karim.benali@cabinet.tn\",\n  \"specialite\": { \"idspec\": 1 }\n}"
+            }
+          }
+        },
+        {
+          "name": "GET tous",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/medecins"
+          }
+        },
+        {
+          "name": "GET recherche par nom",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/medecins?nom=ben"
+          }
+        },
+        {
+          "name": "GET par spécialité",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/medecins/specialite/1"
+          }
+        },
+        {
+          "name": "GET par id",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/medecins/1"
+          }
+        },
+        {
+          "name": "PUT modifier",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/medecins/1",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Ben Ali\",\n  \"prenom\": \"Karim\",\n  \"adr\": \"Sfax\",\n  \"email\": \"karim.benali@cabinet.tn\",\n  \"specialite\": { \"idspec\": 1 }\n}"
+            }
+          }
+        },
+        {
+          "name": "DELETE supprimer",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/medecins/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "3 - Patients",
+      "item": [
+        {
+          "name": "POST créer patient",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/patients",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nompatient\": \"Trabelsi\",\n  \"prenompatient\": \"Sana\",\n  \"adrpatient\": \"Ariana\",\n  \"emailpatient\": \"sana.trabelsi@mail.com\"\n}"
+            }
+          }
+        },
+        {
+          "name": "GET tous",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/patients"
+          }
+        },
+        {
+          "name": "GET recherche par nom",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/patients?nom=trab"
+          }
+        },
+        {
+          "name": "GET par id",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/patients/1"
+          }
+        },
+        {
+          "name": "PUT modifier",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/patients/1",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nompatient\": \"Trabelsi\",\n  \"prenompatient\": \"Sana\",\n  \"adrpatient\": \"La Marsa\",\n  \"emailpatient\": \"sana.trabelsi@mail.com\"\n}"
+            }
+          }
+        },
+        {
+          "name": "DELETE supprimer",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/patients/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "4 - Rendez-vous",
+      "item": [
+        {
+          "name": "POST créer rendez-vous",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/rendezvous",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"daterdv\": \"2026-11-05\",\n  \"heurerdv\": \"10:30:00\",\n  \"medecin\": { \"id\": 1 },\n  \"patient\": { \"idpatient\": 1 }\n}"
+            }
+          }
+        },
+        {
+          "name": "POST même créneau (doit renvoyer 409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/rendezvous",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"daterdv\": \"2026-11-05\",\n  \"heurerdv\": \"10:30:00\",\n  \"medecin\": { \"id\": 1 },\n  \"patient\": { \"idpatient\": 1 }\n}"
+            }
+          }
+        },
+        {
+          "name": "GET tous",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/rendezvous"
+          }
+        },
+        {
+          "name": "GET par médecin",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/rendezvous/medecin/1"
+          }
+        },
+        {
+          "name": "GET par patient",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/rendezvous/patient/1"
+          }
+        },
+        {
+          "name": "GET par id",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/rendezvous/1"
+          }
+        },
+        {
+          "name": "PUT modifier",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/rendezvous/1",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"daterdv\": \"2026-11-06\",\n  \"heurerdv\": \"11:00:00\",\n  \"medecin\": { \"id\": 1 },\n  \"patient\": { \"idpatient\": 1 }\n}"
+            }
+          }
+        },
+        {
+          "name": "DELETE supprimer",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/rendezvous/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "5 - Consultations",
+      "item": [
+        {
+          "name": "POST créer consultation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/consultations",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"datecons\": \"2026-11-06\",\n  \"recapcons\": \"Tension normale, contrôle dans 3 mois.\",\n  \"rendezvous\": { \"idrdv\": 1 }\n}"
+            }
+          }
+        },
+        {
+          "name": "GET toutes",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/consultations"
+          }
+        },
+        {
+          "name": "GET par rendez-vous",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/consultations/rendezvous/1"
+          }
+        },
+        {
+          "name": "GET par id",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/consultations/1"
+          }
+        },
+        {
+          "name": "PUT modifier",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/consultations/1",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"datecons\": \"2026-11-06\",\n  \"recapcons\": \"Compte rendu mis à jour.\",\n  \"rendezvous\": { \"idrdv\": 1 }\n}"
+            }
+          }
+        },
+        {
+          "name": "DELETE supprimer",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/consultations/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "6 - Public (sans jeton)",
+      "item": [
+        {
+          "name": "GET médecins (page d'accueil)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/public/medecins",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET spécialités",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/public/specialites",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "7 - Espace ADMIN (jeton admin)",
+      "item": [
+        {
+          "name": "GET statistiques (graphiques)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/admin/stats"
+          }
+        },
+        {
+          "name": "POST créer spécialité",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/admin/specialites",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nomspecialite\": \"Cardiologie\"\n}"
+            }
+          }
+        },
+        {
+          "name": "POST créer médecin + compte",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/admin/medecins",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Ben Ali\",\n  \"prenom\": \"Karim\",\n  \"adr\": \"Tunis\",\n  \"email\": \"karim@cabinet.tn\",\n  \"motDePasse\": \"medecin123\",\n  \"idspec\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "GET médecins",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/admin/medecins"
+          }
+        },
+        {
+          "name": "GET patients",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/admin/patients"
+          }
+        },
+        {
+          "name": "PUT modifier un médecin (sans mot de passe)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/admin/medecins/1",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Ben Ali\",\n  \"prenom\": \"Karim\",\n  \"adr\": \"Sfax\",\n  \"email\": \"karim@cabinet.tn\",\n  \"idspec\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "DELETE supprimer un médecin (+ compte, rendez-vous, consultations)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/admin/medecins/1"
+          }
+        },
+        {
+          "name": "PUT modifier une spécialité",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/admin/specialites/1",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nomspecialite\": \"Cardiologie générale\"\n}"
+            }
+          }
+        },
+        {
+          "name": "DELETE supprimer une spécialité (409 si des médecins l'utilisent)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/admin/specialites/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "8 - Espace PATIENT (jeton patient)",
+      "item": [
+        {
+          "name": "GET mes rendez-vous",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/patient/rendezvous"
+          }
+        },
+        {
+          "name": "POST prendre rendez-vous",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/patient/rendezvous",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idMedecin\": 1,\n  \"daterdv\": \"2026-12-15\",\n  \"heurerdv\": \"10:30:00\"\n}"
+            }
+          }
+        },
+        {
+          "name": "PUT annuler un rendez-vous programmé",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/patient/rendezvous/1/annuler",
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "POST supprimer mon compte (confirmer le mot de passe)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/patient/supprimer-compte",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"motDePasse\": \"secret123\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "9 - Espace MÉDECIN (jeton médecin)",
+      "item": [
+        {
+          "name": "GET mes rendez-vous",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/medecin/rendezvous"
+          }
+        },
+        {
+          "name": "PUT statut -> PASSE",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/medecin/rendezvous/1/statut",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"statut\": \"PASSE\"\n}"
+            }
+          }
+        },
+        {
+          "name": "PUT statut -> ANNULE",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/medecin/rendezvous/1/statut",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"statut\": \"ANNULE\"\n}"
+            }
+          }
+        },
+        {
+          "name": "POST consultation (récap + ordonnance + certificat)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/medecin/rendezvous/1/consultation",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"datecons\": \"2026-12-15\",\n  \"recapcons\": \"Tension normale.\",\n  \"ordonnance\": \"Paracétamol 1 g, 3 fois par jour pendant 5 jours.\",\n  \"certificat\": \"Repos de 3 jours.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "PUT modifier la consultation",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/medecin/rendezvous/1/consultation",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"datecons\": \"2026-12-15\",\n  \"recapcons\": \"Récapitulatif corrigé.\",\n  \"ordonnance\": \"\",\n  \"certificat\": \"\"\n}"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  }
+}

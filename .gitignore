@@ -1,0 +1,34 @@
+# Maven / Java build output
+/target/
+
+# Angular build output and dependencies
+/cabinet-front/dist/
+/cabinet-front/.angular/
+/cabinet-front/coverage/
+/cabinet-front/node_modules/
+
+# IDE and editor files
+/.idea/
+*.iml
+.vscode/
+
+# Local secrets and machine-specific configuration
+.env
+.env.*
+!.env.example
+/src/main/resources/application-local.properties
+/src/main/resources/application-*.local.properties
+
+# Logs, temporary files, and OS metadata
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Generated LaTeX files for docs/rapport_tp5.tex
+/docs/*.aux
+/docs/*.log
+/docs/*.out
+/docs/*.toc
+/docs/*.xdv

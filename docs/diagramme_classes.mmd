@@ -1,0 +1,70 @@
+classDiagram
+direction LR
+
+class Specialite {
+  -Long idspec
+  -String nomspecialite
+}
+class Medecin {
+  -Long id
+  +String nom
+  -String prenom
+  +String adr
+  +String email
+}
+class Patient {
+  -Long idpatient
+  -String nompatient
+  -String prenompatient
+  -String adrpatient
+  -String emailpatient
+}
+class Admin {
+  -Long idadmin
+  -String nomadmin
+  -String prenomadmin
+  -String emailadmin
+}
+class Rendezvous {
+  -Long idrdv
+  -LocalDate daterdv
+  -LocalTime heurerdv
+  -StatutRdv statut
+}
+class Consultation {
+  -Long idcons
+  -LocalDate datecons
+  -String recapcons
+  -String ordonnance
+  -String certificat
+}
+class Utilisateur {
+  -Long id
+  -String login (email, unique)
+  -String motDePasse (haché BCrypt)
+  -Role role
+  +seConnecter() AuthResponse
+  +changerMotDePasse(ancien, nouveau)
+}
+class Role {
+  <<enumeration>>
+  ADMIN
+  MEDECIN
+  PATIENT
+}
+class StatutRdv {
+  <<enumeration>>
+  PROGRAMME
+  PASSE
+  ANNULE
+}
+
+Medecin "1..*" --> "1" Specialite
+Medecin "1" --> "0..*" Rendezvous
+Patient "1" --> "0..*" Rendezvous
+Rendezvous "1" -- "0..1" Consultation
+Utilisateur "1" -- "0..1" Medecin : compte
+Utilisateur "1" -- "0..1" Patient : compte
+Utilisateur "1" -- "0..1" Admin : compte
+Utilisateur --> Role
+Rendezvous --> StatutRdv
